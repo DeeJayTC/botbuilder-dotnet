@@ -4,6 +4,7 @@
 using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Core.Extensions.Tests;
+using Microsoft.Bot.Builder.Core.State;
 using Microsoft.Bot.Schema;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -51,7 +52,9 @@ namespace Microsoft.Bot.Builder.Ai.Tests
         {
 
             TestAdapter adapter = new TestAdapter()
-                .Use(new UserState<LanguageState>(new MemoryStorage()))
+                .Use(new StateManagementMiddleware()
+                    .UseDefaultStorageProvider(new MemoryStateStorageProvider())
+                    .UseUserState())
                 .Use(new TranslationMiddleware(new string[] { "en-us" }, translatorKey, new Dictionary<string, List<string>>(), GetActiveLanguage, SetActiveLanguage));
 
             await new TestFlow(adapter, (context) =>
@@ -76,7 +79,9 @@ namespace Microsoft.Bot.Builder.Ai.Tests
         {
 
             TestAdapter adapter = new TestAdapter()
-                .Use(new UserState<LanguageState>(new MemoryStorage()))
+                .Use(new StateManagementMiddleware()
+                    .UseDefaultStorageProvider(new MemoryStateStorageProvider())
+                    .UseUserState())
                 .Use(new TranslationMiddleware(new string[] { "en-us" }, translatorKey, new Dictionary<string, List<string>>(), GetActiveLanguage, SetActiveLanguage,true));
 
             await new TestFlow(adapter, (context) =>
@@ -94,7 +99,15 @@ namespace Microsoft.Bot.Builder.Ai.Tests
                 .StartTest();
         }
 
-        private void SetLanguage(ITurnContext context, string language) =>context.GetUserState<LanguageState>().Language = language ; 
+        private async Task SetLanguage(IStateManager stateManager, string language)
+        {
+            var languageState = await stateManager.GetOrCreate<LanguageState>();
+            languageState.Language = language;
+
+            stateManager.Set(languageState);
+
+            await stateManager.SaveChanges();
+        }
        
         protected async Task<bool> SetActiveLanguage(ITurnContext context)
         {
@@ -110,7 +123,7 @@ namespace Microsoft.Bot.Builder.Ai.Tests
                 var newLang = messageActivity.Text.ToLower().Replace("set my language to", "").Trim();
                 if (!string.IsNullOrWhiteSpace(newLang))
                 {
-                    SetLanguage(context, newLang);
+                    await SetLanguage(context.UserState(), newLang);
                     await context.SendActivity($@"Changing your language to {newLang}");
                 }
                 else
@@ -123,12 +136,14 @@ namespace Microsoft.Bot.Builder.Ai.Tests
 
             return false;
         }
-        protected string GetActiveLanguage(ITurnContext context)
+        protected async Task<string> GetActiveLanguage(ITurnContext context)
         {
+            var languageState = await context.UserState().Get<LanguageState>();
+
             if (context.Activity.Type == ActivityTypes.Message
-                && !string.IsNullOrEmpty(context.GetUserState<LanguageState>().Language))
+                && !string.IsNullOrEmpty(languageState?.Language))
             {
-                return context.GetUserState<LanguageState>().Language;
+                return languageState.Language;
             }
 
             return "en";

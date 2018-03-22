@@ -95,22 +95,23 @@ namespace Microsoft.Bot.Builder.Adapters
                 throw new ArgumentNullException(nameof(reference));
 
             if (callback == null)
-                throw new ArgumentNullException(nameof(callback)); 
+                throw new ArgumentNullException(nameof(callback));
 
-            var context = new TurnContext(this, reference.GetPostToBotMessage());
-
-            // Hand craft Claims Identity.
-            var claimsIdentity = new ClaimsIdentity(new List<Claim>
+            using (var context = new TurnContext(this, reference.GetPostToBotMessage()))
             {
-                // Adding claims for both Emulator and Channel.
-                new Claim(AuthenticationConstants.AudienceClaim, botAppId),
-                new Claim(AuthenticationConstants.AppIdClaim, botAppId)
-            });
+                // Hand craft Claims Identity.
+                var claimsIdentity = new ClaimsIdentity(new List<Claim>
+                {
+                    // Adding claims for both Emulator and Channel.
+                    new Claim(AuthenticationConstants.AudienceClaim, botAppId),
+                    new Claim(AuthenticationConstants.AppIdClaim, botAppId)
+                });
 
-            context.Services.Add<IIdentity>("BotIdentity", claimsIdentity);
-            var connectorClient = await this.CreateConnectorClientAsync(reference.ServiceUrl, claimsIdentity);
-            context.Services.Add<IConnectorClient>(connectorClient);
-            await RunPipeline(context, callback);
+                context.Services.Add<IIdentity>("BotIdentity", claimsIdentity);
+                var connectorClient = await this.CreateConnectorClientAsync(reference.ServiceUrl, claimsIdentity);
+                context.Services.Add<IConnectorClient>(connectorClient);
+                await RunPipeline(context, callback);
+            }
         }
 
         /// <summary>
@@ -170,11 +171,13 @@ namespace Microsoft.Bot.Builder.Adapters
             BotAssert.ActivityNotNull(activity);
             var claimsIdentity =  await JwtTokenValidation.AuthenticateRequest(activity, authHeader, _credentialProvider, _httpClient);
 
-            var context = new TurnContext(this, activity);
-            context.Services.Add<IIdentity>("BotIdentity", claimsIdentity);
-            var connectorClient = await this.CreateConnectorClientAsync(activity.ServiceUrl, claimsIdentity);
-            context.Services.Add<IConnectorClient>(connectorClient);
-            await base.RunPipeline(context, callback).ConfigureAwait(false);
+            using (var context = new TurnContext(this, activity))
+            {
+                context.Services.Add<IIdentity>("BotIdentity", claimsIdentity);
+                var connectorClient = await this.CreateConnectorClientAsync(activity.ServiceUrl, claimsIdentity);
+                context.Services.Add<IConnectorClient>(connectorClient);
+                await base.RunPipeline(context, callback).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -287,8 +290,10 @@ namespace Microsoft.Bot.Builder.Adapters
             conversationUpdate.Conversation = new ConversationAccount(id: result.Id);
             conversationUpdate.Recipient = conversationParameters.Bot;
 
-            TurnContext context = new TurnContext(this, (Activity)conversationUpdate);
-            await this.RunPipeline(context, callback);
+            using (TurnContext context = new TurnContext(this, (Activity)conversationUpdate))
+            {
+                await this.RunPipeline(context, callback);
+            }
         }
 
         /// <summary>
