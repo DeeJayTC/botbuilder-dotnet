@@ -8,7 +8,9 @@ using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Microsoft.Bot.Builder.Integration.AspNet.Core.Handlers
@@ -48,9 +50,10 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core.Handlers
                 return;
             }
 
-            if (!MediaTypeHeaderValue.TryParse(request.ContentType, out var mediaTypeHeaderValue)
-                    ||
-                mediaTypeHeaderValue.MediaType != "application/json")
+            if (!MediaTypeHeaderValue.TryParse(	request.ContentType, out var mediaTypeHeaderValue) 
+				||
+				( mediaTypeHeaderValue.MediaType != "application/json" && mediaTypeHeaderValue.MediaType != "application/x-www-form-urlencoded")
+				)
             {
                 response.StatusCode = (int)HttpStatusCode.NotAcceptable;
 
@@ -59,7 +62,7 @@ namespace Microsoft.Bot.Builder.Integration.AspNet.Core.Handlers
 
             try
             {
-                await ProcessMessageRequestAsync(
+				await ProcessMessageRequestAsync(
                     request,
                     _botFrameworkAdapter,
                     context =>
