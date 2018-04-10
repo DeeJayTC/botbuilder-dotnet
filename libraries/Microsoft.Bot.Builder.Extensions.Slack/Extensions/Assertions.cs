@@ -1,11 +1,10 @@
-﻿using Microsoft.Bot.Builder.Extensions.Slack.Schema;
+﻿using Microsoft.Bot.Builder.Core.Extensions.Slack;
+using Microsoft.Bot.Schema;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.Bot.Builder
 {
-	public static class BotAssertExtension
+	public static class BotAssertSlack
     {
 		/// <summary>
 		/// Checks that an activity object is not <c>null</c>.
@@ -18,5 +17,29 @@ namespace Microsoft.Bot.Builder
 			if (activity == null)
 				throw new ArgumentNullException(nameof(activity));
 		}
+		/// <summary>
+		/// Checks that an activity object is not <c>null</c>.
+		/// </summary>
+		/// <param name="activity">The activity object.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="activity"/> is <c>null</c>.</exception>
+		public static void ContextNotNull(ICommandContext activity)
+		{
+			if (activity == null)
+				throw new ArgumentNullException(nameof(activity));
+		}
+
+		/// <summary>
+		/// Checks that an middleware object is not <c>null</c>.
+		/// </summary>
+		/// <param name="activity">The activity object.</param>
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="activity"/> is <c>null</c>.</exception>
+		public static void MiddlewareNotNull(IMiddlewareSlack activity)
+		{
+			if (activity == null)
+				throw new ArgumentNullException(nameof(activity));
+		}
+
 	}
 }

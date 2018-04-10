@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.Bot.Builder.Extensions.Slack.Schema
+namespace Microsoft.Bot.Builder.Core.Extensions.Slack
 {
     public interface ICommand
     {

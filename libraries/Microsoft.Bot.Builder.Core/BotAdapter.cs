@@ -123,7 +123,7 @@ namespace Microsoft.Bot.Builder
         /// </remarks>
         protected async Task RunPipeline(ITurnContext context, Func<ITurnContext, Task> callback = null, CancellationTokenSource cancelToken = null)
         {
-            BotAssert.ContextNotNull(context);
+            BotAssertSlack.ContextNotNull(context);
 
             // Call any registered Middleware Components looking for ReceiveActivity()
             if (context.Activity != null)

@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿// Copyright(c) Teamwork.com.All rights reserved.
+// Core Framework Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License.
+
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Builder.Integration.AspNet.Core.Handlers;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;

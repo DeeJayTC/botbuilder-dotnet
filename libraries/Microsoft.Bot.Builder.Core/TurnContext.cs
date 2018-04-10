@@ -359,7 +359,7 @@ namespace Microsoft.Bot.Builder
             IEnumerable<UpdateActivityHandler> updateHandlers,
             Func<Task> callAtBottom)
         {
-            BotAssert.ActivityNotNull(activity);
+            BotAssertSlack.ActivityNotNull(activity);
             if (updateHandlers == null)
                 throw new ArgumentException(nameof(updateHandlers));
 
@@ -391,7 +391,7 @@ namespace Microsoft.Bot.Builder
            IEnumerable<DeleteActivityHandler> updateHandlers,
            Func<Task> callAtBottom)
         {
-            BotAssert.ConversationReferenceNotNull(cr);
+            BotAssertSlack.ConversationReferenceNotNull(cr);
             if (updateHandlers == null)
                 throw new ArgumentException(nameof(updateHandlers));
 
@@ -428,7 +428,7 @@ namespace Microsoft.Bot.Builder
         /// <paramref name="activity"/> is <c>null</c>.</exception>
         public static ConversationReference GetConversationReference(Activity activity)
         {
-            BotAssert.ActivityNotNull(activity);
+            BotAssertSlack.ActivityNotNull(activity);
 
             ConversationReference r = new ConversationReference
             {

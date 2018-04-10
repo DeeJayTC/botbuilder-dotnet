@@ -50,7 +50,7 @@ namespace Microsoft.Bot.Builder.Core.Extensions
 
         public async Task OnTurn(ITurnContext context, MiddlewareSet.NextDelegate next)
         {
-            BotAssert.ContextNotNull(context);
+            BotAssertSlack.ContextNotNull(context);
 
             var intents = await this.Recognize(context);
             var result = new IntentRecognition();
@@ -69,7 +69,7 @@ namespace Microsoft.Bot.Builder.Core.Extensions
 
         public async Task<IList<Intent>> Recognize(ITurnContext context)
         {
-            BotAssert.ContextNotNull(context);
+            BotAssertSlack.ContextNotNull(context);
 
             bool isEnabled = await IsRecognizerEnabled(context).ConfigureAwait(false);
             if (isEnabled)

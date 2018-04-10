@@ -10,7 +10,7 @@ namespace Microsoft.Bot.Builder
     /// <summary>
     /// Provides methods for debugging Bot Builder code.
     /// </summary>
-    public class BotAssert
+    public class BotAssertSlack
     {
         /// <summary>
         /// Checks that an activity object is not <c>null</c>.

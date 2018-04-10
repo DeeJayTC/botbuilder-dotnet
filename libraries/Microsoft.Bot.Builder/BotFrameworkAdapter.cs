@@ -167,7 +167,7 @@ namespace Microsoft.Bot.Builder.Adapters
         /// <seealso cref="BotAdapter.RunPipeline(ITurnContext, Func{ITurnContext, Task}, System.Threading.CancellationTokenSource)"/>
         public async Task ProcessActivity(string authHeader, Activity activity, Func<ITurnContext, Task> callback)
         {
-            BotAssert.ActivityNotNull(activity);
+            BotAssertSlack.ActivityNotNull(activity);
             var claimsIdentity =  await JwtTokenValidation.AuthenticateRequest(activity, authHeader, _credentialProvider, _httpClient);
 
             var context = new TurnContext(this, activity);

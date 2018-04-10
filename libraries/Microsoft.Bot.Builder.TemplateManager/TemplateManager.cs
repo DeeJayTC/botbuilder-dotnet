@@ -62,7 +62,7 @@ namespace Microsoft.Bot.Builder.TemplateManager
         /// <returns></returns>
         public async Task ReplyWith(ITurnContext context, string templateId, object data = null)
         {
-            BotAssert.ContextNotNull(context);
+            BotAssertSlack.ContextNotNull(context);
 
             // apply template
             Activity boundActivity = await this.RenderTemplate(context, context.Activity?.AsMessageActivity()?.Locale, templateId, data).ConfigureAwait(false);

@@ -1,31 +1,32 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Bot.Builder.Core.Extensions.Slack;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Microsoft.Bot.Builder
 {
-    public class MiddlewareSet : IMiddleware
+    public class MiddlewareSetSlack : IMiddlewareSlack
     {
         public delegate Task NextDelegate();
 
-        private readonly IList<IMiddleware> _middleware = new List<IMiddleware>();
+        private readonly IList<IMiddlewareSlack> _middleware = new List<IMiddlewareSlack>();
 
-        public MiddlewareSet Use(IMiddleware middleware)
+        public MiddlewareSetSlack Use(IMiddlewareSlack middleware)
         {
             BotAssertSlack.MiddlewareNotNull(middleware);
             _middleware.Add(middleware);
             return this;
         }
 
-        public async Task ReceiveActivity(ITurnContext context)
+        public async Task ReceiveActivity(ICommandContext context)
         {
             await ReceiveActivityInternal(context, null).ConfigureAwait(false);
         }
 
-        public async Task OnTurn(ITurnContext context, NextDelegate next)
+        public async Task OnTurn(ICommandContext context, NextDelegate next)
         {
             await ReceiveActivityInternal(context, null).ConfigureAwait(false);
             await next().ConfigureAwait(false);
@@ -36,12 +37,12 @@ namespace Microsoft.Bot.Builder
         /// standard ReceiveActivity, except that it runs a user-defined delegate returns 
         /// if all Middlware in the receive pipeline was run.
         /// </summary>
-        public async Task ReceiveActivityWithStatus(ITurnContext context, Func<ITurnContext, Task> callback)
+        public async Task ReceiveActivityWithStatus(ICommandContext context, Func<ICommandContext, Task> callback)
         {
             await ReceiveActivityInternal(context, callback).ConfigureAwait(false);
         }
 
-        private Task ReceiveActivityInternal(ITurnContext context, Func<ITurnContext, Task> callback, int nextMiddlewareIndex = 0)
+        private Task ReceiveActivityInternal(ICommandContext context, Func<ICommandContext, Task> callback, int nextMiddlewareIndex = 0)
         {
             // Check if we're at the end of the middleware list yet
             if(nextMiddlewareIndex == _middleware.Count)
@@ -69,5 +70,5 @@ namespace Microsoft.Bot.Builder
                 () => ReceiveActivityInternal(context, callback, nextMiddlewareIndex + 1));
         }
 
-    }
+	}
 }
